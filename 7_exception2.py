@@ -10,7 +10,7 @@
 * Первые два нужно приводить к вещественному числу при помощи float(),
   а третий - к целому при помощи int() и перехватывать исключения
   ValueError и TypeError, если приведение типов не сработало.
-    
+
 """
 
 def discounted(price, discount, max_discount=20)
@@ -18,7 +18,7 @@ def discounted(price, discount, max_discount=20)
     Замените pass на ваш код
     """
     pass
-    
+
 if __name__ == "__main__":
     print(discounted(100, 2))
     print(discounted(100, "3"))
