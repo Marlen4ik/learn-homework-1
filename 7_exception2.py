@@ -13,17 +13,21 @@
 
 """
 
+
 def discounted(price, discount, max_discount=20):
     try:
         price = float(price)
         discount = float(discount)
         max_discount = int(max_discount)
-        return price - discount if discount<max_discount else price - max_discount
+        return price - discount if discount < max_discount else price - max_discount
 
     except ValueError:
-        print('Переменные должны быть числами. Не получилось перевести переменную в другой тип данных')
+        print(
+            "Переменные должны быть числами. Не получилось перевести переменную в другой тип данных"
+        )
     except TypeError:
-        print('Объект не поддерживает данный метод')
+        print("Объект не поддерживает данный метод")
+
 
 if __name__ == "__main__":
     print(discounted(100, 2))

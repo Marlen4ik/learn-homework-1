@@ -13,15 +13,13 @@
 
 """
 
-
 import logging
-
 from os import environ
 
 import ephem
-from telegram import Update
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 from dotenv import load_dotenv
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
 load_dotenv()
 
@@ -40,7 +38,6 @@ async def planet(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args:
         return
     user_text: str = context.args[0].strip().capitalize()
-    logging.info(user_text)
     try:
         planet_class = getattr(ephem, user_text)
         user_planet = planet_class()
