@@ -12,46 +12,59 @@
   бота отвечать, в каком созвездии сегодня находится планета.
 
 """
+
 import logging
+from os import environ
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+import ephem
+from dotenv import load_dotenv
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO,
-                    filename='bot.log')
+load_dotenv()
 
-
-PROXY = {
-    'proxy_url': 'socks5://t1.learn.python.ru:1080',
-    'urllib3_proxy_kwargs': {
-        'username': 'learn',
-        'password': 'python'
-    }
-}
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+)
 
 
-def greet_user(update, context):
-    text = 'Вызван /start'
-    print(text)
-    update.message.reply_text(text)
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id, text="I'm a bot, please talk to me!"
+    )
 
 
-def talk_to_me(update, context):
-    user_text = update.message.text
-    print(user_text)
-    update.message.reply_text(text)
+async def planet(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not context.args:
+        return
+    user_text: str = context.args[0].strip().capitalize()
+    try:
+        planet_class = getattr(ephem, user_text)
+        user_planet = planet_class()
 
+        user_planet.compute()
 
-def main():
-    mybot = Updater("КЛЮЧ, КОТОРЫЙ НАМ ВЫДАЛ BotFather", request_kwargs=PROXY, use_context=True)
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=f"Планета {user_text} "
+            f"сейчас находится в созвездии {ephem.constellation(user_planet)[1]}",
+        )
+        return
 
-    dp = mybot.dispatcher
-    dp.add_handler(CommandHandler("start", greet_user))
-    dp.add_handler(MessageHandler(Filters.text, talk_to_me))
-
-    mybot.start_polling()
-    mybot.idle()
+    except AttributeError:
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id, text="Не правильно введено имя планеты"
+        )
+        return
 
 
 if __name__ == "__main__":
-    main()
+    application = ApplicationBuilder().token(environ["TOKEN"]).build()
+
+    start_handler = CommandHandler("start", start)
+    application.add_handler(start_handler)
+
+    planet_handler = CommandHandler("planet", planet)
+    application.add_handler(planet_handler)
+
+    application.run_polling()
